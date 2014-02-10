@@ -8,23 +8,31 @@ const FutureTimeoutInfinite = 0x7fffffff
 
 function await_notify_cb(f::Future, data::Ptr{Void})
     println("AWAIIT")
-    c = data::Condition
-    notify(c)
+    c = unsafe_pointer_to_objref(data)::Condition
+    println("notify")
+    notify(c, 42)
+    println("notify done:", c)
     return
 end
 
 function await(f::Future)
 
-    c = Condition()
+    #THIS CODE DO NOT WORK ATM
+    # c = Condition()
+
+    # println("cond:", c)
 
 
-    mycb = cfunction(await_notify_cb, Void, (Future, Ptr{Void}))
+    # mycb = cfunction(await_notify_cb, Void, (Future, Ptr{Void}))
 
-    ccall((:qi_future_add_callback, "libqic"), Void, (Future, Ptr{Void}, Ptr{Void}), f, mycb, &c)
+    # ccall((:qi_future_add_callback, "libqic"), Void, (Future, Ptr{Void}, Ptr{Void}), f, mycb, pointer_from_objref(c))
 
-    #register a callback on the future
-    #wait for the condition
-    wait(c)  #yield to julia
+    # #register a callback on the future
+    # #wait for the condition
+    # println("wait c'est parti")
+    # wait(c)  #yield to julia
+
+    # println("WHOUUUUUUUUHOUUUUU WAITED")
 
     hasValue = ccall((:qi_future_has_value, "libqic"), Int, (Future, Int), f, FutureTimeoutInfinite)
     if hasValue > 0

@@ -67,11 +67,9 @@ function toJulia(v::Value)
   elseif kind == QI_TYPE_KIND_STRING
     return bytestring(  ccall((:qi_value_get_string, "libqic"), Ptr{Uint8}, (Value,), v) )
   elseif kind == QI_TYPE_KIND_OBJECT || kind == QI_TYPE_KIND_DYNAMIC
-    obj = ccall((:qi_value_object_get, "libqic"), Ptr{Void}, (Value,), v)
+    obj = ccall((:qi_value_get_object, "libqic"), Ptr{Void}, (Value,), v)
     return Object(obj)
   else
-    error("type conversion not implemented for this kind")
+    error("type conversion not implemented for this kind: ", kind)
   end
 end
-
-
